@@ -1,0 +1,42 @@
+{
+    "appid": "wxe500ee0be008b94a",
+    "compileType": "miniprogram",
+    "libVersion": "latest",
+    "miniprogramRoot": "",
+    "projectname": "notice-web",
+    "setting": {
+        "es6": true,
+        "enhance": true,
+        "postcss": true,
+        "minified": true,
+        "urlCheck": false,
+        "babelSetting": {
+            "ignore": [],
+            "disablePlugins": [],
+            "outputPath": ""
+        },
+        "compileWorklet": false,
+        "uglifyFileName": false,
+        "uploadWithSourceMap": true,
+        "packNpmManually": false,
+        "packNpmRelationList": [],
+        "minifyWXSS": true,
+        "minifyWXML": true,
+        "localPlugins": false,
+        "disableUseStrict": false,
+        "useCompilerPlugins": false,
+        "condition": false,
+        "swc": false,
+        "disableSWC": true
+    },
+    "packOptions": {
+        "ignore": [],
+        "include": []
+    },
+    "condition": {},
+    "editorSetting": {
+        "tabIndent": "insertSpaces",
+        "tabSize": 4
+    },
+    "simulatorPluginLibVersion": {}
+}

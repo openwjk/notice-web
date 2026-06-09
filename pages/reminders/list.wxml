@@ -1,0 +1,42 @@
+<view class="page">
+  <view class="list">
+    <view wx:if="{{!visibleReminders.length}}" class="empty">
+      <text>{{emptyText}}</text>
+    </view>
+    <view wx:for="{{visibleReminders}}" wx:key="id" class="reminder {{canEditList && swipeOpenId === item.id ? 'swiped' : ''}}" data-id="{{item.id}}" bindtouchstart="touchReminderStart" bindtouchmove="touchReminderMove" bindtouchend="touchReminderEnd" bindtouchcancel="touchReminderCancel">
+      <view wx:if="{{canEditList}}" class="swipe-actions">
+        <button class="swipe-button edit" data-id="{{item.id}}" catchtap="editReminder">编辑</button>
+        <button class="swipe-button danger" data-id="{{item.id}}" catchtap="removeReminder">删除</button>
+      </view>
+      <view class="swipe-content" catchtap="closeSwipe">
+        <view class="reminder-body">
+        <view class="avatar">{{item.typeInitial}}</view>
+        <view class="reminder-content">
+          <view class="reminder-line">
+            <text class="reminder-title">{{item.title}}</text>
+            <text class="badge {{item.statusClass}}">{{item.statusText}}</text>
+          </view>
+          <text class="summary">{{item.summary}}</text>
+          <text class="meta">{{item.typeLabel}} · {{item.meta}}</text>
+        </view>
+      </view>
+      </view>
+      <view class="actions">
+        <button class="link-button" data-id="{{item.id}}" bindtap="editReminder">编辑</button>
+        <button class="link-button danger" data-id="{{item.id}}" bindtap="removeReminder">删除</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="fab" bindtap="createReminder" hover-class="fab-hover">
+    <text class="fab-plus">+</text>
+  </view>
+
+  <view class="bottom-filter">
+    <view class="tabs">
+      <view wx:for="{{tabs}}" wx:key="key" class="tab {{activeTab === item.key ? 'active' : ''}}" data-key="{{item.key}}" bindtap="selectTab" hover-class="tab-hover">
+        {{item.label}}
+      </view>
+    </view>
+  </view>
+</view>

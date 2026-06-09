@@ -1,0 +1,17 @@
+{
+  "pages": [
+    "pages/reminders/dashboard",
+    "pages/reminders/list",
+    "pages/reminders/index",
+    "pages/reminders/logs"
+  ],
+  "window": {
+    "navigationBarTitleText": "提醒看板",
+    "navigationBarBackgroundColor": "#f6f8f7",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f6f8f7",
+    "backgroundTextStyle": "dark"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

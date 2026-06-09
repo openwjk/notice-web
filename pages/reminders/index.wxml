@@ -1,0 +1,128 @@
+<view class="page">
+  <view class="editor">
+    <view class="field">
+      <text class="field-label">提醒名称</text>
+      <input class="input" value="{{form.title}}" data-field="title" bindinput="cacheField" bindblur="setField" placeholder="例如：账单到期" />
+    </view>
+
+    <view class="field">
+      <text class="field-label">提醒类型</text>
+      <view class="segments {{isEditing ? 'locked' : ''}}">
+        <view wx:for="{{typeOptions}}" wx:key="key" class="segment {{form.type === item.key ? 'selected' : ''}} {{isEditing ? 'disabled' : ''}}" data-key="{{item.key}}" bindtap="selectType" hover-class="{{isEditing ? 'none' : 'segment-hover'}}">
+          <text class="segment-icon">{{item.icon}}</text>
+          <text class="segment-label">{{item.label}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="field">
+      <view class="label-row">
+        <text class="field-label">Cron 表达式</text>
+        <text class="hint">Quartz</text>
+      </view>
+      <view class="cron-input-row">
+        <input class="input mono cron-input" value="{{form.cron}}" data-field="cron" bindinput="cacheField" bindblur="setField" placeholder="0 0 8 * * ?" />
+        <view class="cron-preview-button" bindtap="showCronPreview" hover-class="cron-preview-button-hover">
+          <text>后续生效时间</text>
+        </view>
+      </view>
+      <scroll-view class="preset-scroll" scroll-x enable-flex>
+        <button wx:for="{{cronPresets}}" wx:key="value" class="preset {{form.cron === item.value ? 'selected' : ''}}" data-value="{{item.value}}" bindtap="selectCronPreset">
+          {{item.label}}
+        </button>
+      </scroll-view>
+    </view>
+
+    <view class="field">
+      <text class="field-label">测试时间</text>
+      <view class="datetime-row">
+        <picker class="datetime-picker" mode="date" value="{{testDate}}" bindchange="setTestDate">
+          <view class="date-picker">
+            <text>{{testDate}}</text>
+          </view>
+        </picker>
+        <picker class="datetime-picker time" mode="time" value="{{testTime}}" bindchange="setTestTime">
+          <view class="date-picker">
+            <text>{{testTime}}</text>
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <view wx:if="{{form.type === 'flow'}}" class="field">
+      <text class="field-label">执行编码</text>
+      <picker wx:if="{{execCodeOptions.length}}" class="exec-picker {{isEditing ? 'locked' : ''}}" mode="selector" range="{{execCodeOptions}}" range-key="title" value="{{execCodeIndex}}" disabled="{{isEditing}}" bindchange="changeExecCode">
+        <view class="exec-picker-control {{isEditing ? 'disabled' : ''}}">
+          <view class="exec-picker-text">
+            <text class="exec-picker-title">{{selectedExecCodeTitle || '请选择执行编码'}}</text>
+            <text class="exec-picker-code">{{form.exeCode}}</text>
+          </view>
+          <text wx:if="{{!isEditing}}" class="exec-picker-arrow">⌄</text>
+        </view>
+      </picker>
+      <view wx:else class="inline-empty">暂无可用执行编码</view>
+    </view>
+
+    <view class="field">
+      <view class="label-row">
+        <text class="field-label">{{fieldSectionTitle}}</text>
+        <button wx:if="{{showAddFieldButton}}" class="copy" bindtap="addJsonField">新增字段</button>
+      </view>
+      <view wx:if="{{showFieldEditor}}" class="json-field-list">
+        <view wx:for="{{form.fields}}" wx:key="key" class="json-field">
+          <view class="field-name-row">
+            <input class="input mono field-name-input" value="{{item.name}}" data-index="{{index}}" data-field="name" bindinput="cacheJsonField" bindblur="setJsonField" placeholder="字段名，如 data" />
+            <button wx:if="{{form.fields.length > 1}}" class="icon-button danger" data-index="{{index}}" bindtap="removeJsonField">删除</button>
+          </view>
+          <textarea class="textarea field-value" value="{{item.value}}" data-index="{{index}}" data-field="value" bindinput="cacheJsonField" bindblur="setJsonField" placeholder="字段值，可填文本或 JSON" auto-height maxlength="-1" />
+        </view>
+      </view>
+      <view wx:else class="inline-empty">{{fieldEmptyText}}</view>
+    </view>
+
+    <view class="json-panel">
+      <view class="label-row">
+        <text class="field-label">预览 JSON</text>
+        <button class="copy" bindtap="copyPreview">复制</button>
+      </view>
+      <scroll-view class="json" scroll-y>
+        <text>{{previewJson}}</text>
+      </scroll-view>
+    </view>
+  </view>
+
+  <view wx:if="{{showCronPreviewDialog}}" class="modal-mask" bindtap="closeCronPreviewModal">
+    <view class="cron-modal" catchtap="noop">
+      <view class="cron-modal-head">
+        <view>
+          <text class="cron-modal-title">后续生效时间</text>
+          <text class="cron-modal-desc">当前 Cron 表达式的后续 7 次触发点</text>
+        </view>
+        <view class="modal-close" bindtap="closeCronPreviewModal" hover-class="modal-close-hover">
+          <text>×</text>
+        </view>
+      </view>
+      <view wx:if="{{cronPreview.nextTimes.length}}" class="cron-modal-list">
+        <view wx:for="{{cronPreview.nextTimes}}" wx:key="*this" class="cron-modal-item">
+          <text class="cron-modal-index">{{index + 1}}</text>
+          <text class="cron-modal-time">{{item}}</text>
+        </view>
+      </view>
+      <view wx:else class="cron-modal-empty">
+        <text>{{cronPreview.message}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="bottom-bar">
+    <view class="bottom-button" bindtap="resetForm" hover-class="bottom-button-hover">
+      <text>重置</text>
+    </view>
+    <view class="bottom-button" bindtap="testSend" hover-class="bottom-button-hover">
+      <text>测试发送</text>
+    </view>
+    <view class="bottom-button {{saving || !testPassed ? 'disabled' : ''}}" bindtap="saveReminder" hover-class="bottom-button-hover">
+      <text>{{saving ? '保存中' : '保存'}}</text>
+    </view>
+  </view>
+</view>

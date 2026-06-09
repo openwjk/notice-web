@@ -1,0 +1,46 @@
+<view class="page">
+  <view class="control-panel">
+    <scroll-view class="level-scroll" scroll-x enable-flex>
+      <view wx:for="{{levels}}" wx:key="key" class="level {{activeLevel === item.key ? 'active' : ''}}" data-level="{{item.key}}" bindtap="selectLevel" hover-class="level-hover">
+        {{item.label}}
+      </view>
+    </scroll-view>
+    <view class="actions">
+      <view class="status {{live ? 'live' : 'paused'}}" bindtap="toggleLive">{{statusText}}</view>
+      <view class="action" bindtap="refreshNow">刷新</view>
+      <view class="action muted" bindtap="clearLocal">清屏</view>
+    </view>
+    <view class="time-panel">
+      <view class="time-filter-row">
+        <picker class="time-picker" mode="multiSelector" range="{{startDateTimeRange}}" value="{{startDateTimeIndex}}" bindtap="prepareStartDateTimePicker" bindcolumnchange="onStartDateTimeColumnChange" bindchange="onStartDateTimeChange">
+          <view class="time-filter {{startDateTimeText ? 'active' : ''}}">
+            <text class="time-value">{{startDateTimeText || '开始时间'}}</text>
+          </view>
+        </picker>
+        <picker class="time-picker" mode="multiSelector" range="{{endDateTimeRange}}" value="{{endDateTimeIndex}}" bindtap="prepareEndDateTimePicker" bindcolumnchange="onEndDateTimeColumnChange" bindchange="onEndDateTimeChange">
+          <view class="time-filter {{endDateTimeText ? 'active' : ''}}">
+            <text class="time-value">{{endDateTimeText || '结束时间'}}</text>
+          </view>
+        </picker>
+      </view>
+      <view wx:if="{{startDate || endDate}}" class="clear-time" bindtap="clearTimeFilter">清除时间筛选</view>
+    </view>
+  </view>
+
+  <scroll-view class="terminal" scroll-y scroll-into-view="{{bottomAnchor}}" scroll-top="{{terminalScrollTop}}" lower-threshold="80" bindscrolltolower="loadPreviousLogs" enhanced>
+    <view wx:if="{{!logs.length}}" class="empty">{{emptyText}}</view>
+    <view wx:for="{{logs}}" wx:key="sequence" id="log-{{item.sequence}}" class="log-row {{item.levelClass}}">
+      <view class="log-head">
+        <text class="log-time">{{item.displayTime}}</text>
+        <text class="log-level">{{item.level}}</text>
+        <text class="log-logger">{{item.logger}}</text>
+      </view>
+      <text class="log-message">{{item.message}}</text>
+      <view wx:if="{{item.throwable}}" class="stack-panel">
+        <text class="stack-title">异常堆栈</text>
+        <text class="log-throwable">{{item.throwable}}</text>
+      </view>
+    </view>
+    <view id="log-bottom" class="bottom-anchor"></view>
+  </scroll-view>
+</view>
