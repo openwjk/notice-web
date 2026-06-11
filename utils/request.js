@@ -1,4 +1,4 @@
-const BASE_URL = "https://notice-3miz.onrender.com";
+const BASE_URL = "http://192.168.1.61:8080";
 const WX_ID_STORAGE_KEY = "noticeWxId";
 
 let pendingWxIdCallbacks = [];

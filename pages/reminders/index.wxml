@@ -1,4 +1,9 @@
 <view class="page">
+  <view wx:if="{{loading}}" class="loading-mask">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中</text>
+  </view>
+
   <view class="editor">
     <view class="field">
       <text class="field-label">提醒名称</text>
@@ -64,10 +69,7 @@
     </view>
 
     <view class="field">
-      <view class="label-row">
-        <text class="field-label">{{fieldSectionTitle}}</text>
-        <button wx:if="{{showAddFieldButton}}" class="copy" bindtap="addJsonField">新增字段</button>
-      </view>
+      <text class="field-label">{{fieldSectionTitle}}</text>
       <view wx:if="{{showFieldEditor}}" class="json-field-list">
         <view wx:for="{{form.fields}}" wx:key="key" class="json-field">
           <view class="field-name-row">
@@ -78,6 +80,7 @@
         </view>
       </view>
       <view wx:else class="inline-empty">{{fieldEmptyText}}</view>
+      <button wx:if="{{showAddFieldButton}}" class="add-field-button" bindtap="addJsonField">+ 新增字段</button>
     </view>
 
     <view class="json-panel">

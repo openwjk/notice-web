@@ -93,6 +93,7 @@ Page({
         if (!res.confirm) {
           return;
         }
+        this.setData({ loading: true });
         this.request({
           path: `/api/reminders/${id}`,
           method: "DELETE",
@@ -101,8 +102,33 @@ Page({
             const reminders = Array.isArray(dashboard.items) ? dashboard.items : [];
             this.setData({ reminders, swipeOpenId: "" }, () => this.refreshVisibleReminders());
             wx.showToast({ title: "已逻辑删除", icon: "success" });
+          },
+          complete: () => {
+            this.setData({ loading: false });
           }
         });
+      }
+    });
+  },
+
+  toggleReminder(event) {
+    this.closeSwipe();
+    const id = event.currentTarget.dataset.id;
+    const item = this.data.reminders.find(r => r.id === id);
+    const nextEnabled = item ? !item.enabled : true;
+    const label = nextEnabled ? "启用" : "停用";
+    this.setData({ loading: true });
+    this.request({
+      path: `/api/reminders/${id}/toggle`,
+      method: "PUT",
+      success: (payload) => {
+        const dashboard = (payload.data.dashboard || {});
+        const reminders = Array.isArray(dashboard.items) ? dashboard.items : [];
+        this.setData({ reminders, swipeOpenId: "" }, () => this.refreshVisibleReminders());
+        wx.showToast({ title: `已${label}`, icon: "success" });
+      },
+      complete: () => {
+        this.setData({ loading: false });
       }
     });
   },
@@ -217,6 +243,8 @@ Page({
         typeLabel: item.type === "flow" ? "工作流" : "普通文本",
         statusText: item.enabled ? "启用" : "停用",
         statusClass: item.enabled ? "is-on" : "is-off",
+        toggleLabel: item.enabled ? "停用" : "启用",
+        toggleClass: item.enabled ? "toggle-disable" : "toggle-enable",
         summary: this.getDisplaySummary(item, statMap[item.id]),
         meta: this.getDisplayMeta(item, statMap[item.id])
       }));

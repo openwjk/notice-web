@@ -312,14 +312,6 @@ Page({
     }, () => this.refreshPreview());
   },
 
-  switchEnabled(event) {
-    this.setData({
-      form: Object.assign({}, this.data.form, {
-        enabled: event.detail.value
-      })
-    }, () => this.refreshPreview());
-  },
-
   changeExecCode(event) {
     if (this.data.isEditing) {
       wx.showToast({ title: "编辑时不能修改执行编码", icon: "none" });
@@ -447,7 +439,7 @@ Page({
     }
 
     const editingId = this.data.editingId;
-    this.setData({ saving: true });
+    this.setData({ saving: true, loading: true });
     this.request({
       path: editingId ? `/api/reminders/${editingId}` : "/api/reminders",
       method: editingId ? "PUT" : "POST",
@@ -467,7 +459,7 @@ Page({
         this.refreshPreviousPageAndBack();
       },
       complete: () => {
-        this.setData({ saving: false });
+        this.setData({ saving: false, loading: false });
       }
     });
   },
@@ -520,6 +512,7 @@ Page({
       testedCron: ""
     });
     form.testDate = `${this.data.testDate} ${this.data.testTime}`;
+    this.setData({ loading: true });
     this.request({
       path: "/api/reminders/test",
       method: "POST",
@@ -543,6 +536,9 @@ Page({
           content: data.message || "测试发送失败",
           showCancel: false
         });
+      },
+      complete: () => {
+        this.setData({ loading: false });
       }
     });
   },
@@ -667,7 +663,8 @@ Page({
       "exeCode",
       "dataField",
       "testDate",
-      "fields"
+      "fields",
+      "updatedAt"
     ].indexOf(name) < 0;
   },
 
