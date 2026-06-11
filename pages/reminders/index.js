@@ -206,9 +206,6 @@ Page({
     if (!field) {
       return;
     }
-    if (this.fieldDraft) {
-      delete this.fieldDraft[field];
-    }
     if ((this.data.form[field] || "") === (value || "")) {
       return;
     }
@@ -223,9 +220,6 @@ Page({
     const fields = this.normalizeFieldList(this.data.form).map(item => Object.assign({}, item));
     if (!fields[index]) {
       return;
-    }
-    if (this.jsonFieldDraft) {
-      delete this.jsonFieldDraft[`${index}:${field}`];
     }
     if ((fields[index][field] || "") === (value || "")) {
       return;
@@ -406,10 +400,10 @@ Page({
     }
     if (this.cronPreviewTimer) {
       clearTimeout(this.cronPreviewTimer);
+      this.cronPreviewTimer = null;
     }
-    const seq = (this.cronPreviewSeq || 0) + 1;
-    this.cronPreviewSeq = seq;
-    this.fetchCronPreview(cron, seq, { showDialog: true });
+    this.pendingCronPreview = cron;
+    this.fetchCronPreview(cron, { showDialog: true });
   },
 
   saveReminder() {
@@ -756,8 +750,10 @@ Page({
     const value = (cron || "").trim();
     if (this.cronPreviewTimer) {
       clearTimeout(this.cronPreviewTimer);
+      this.cronPreviewTimer = null;
     }
     if (!value) {
+      this.pendingCronPreview = "";
       this.setData({
         previewingCron: false,
         cronPreview: {
@@ -768,19 +764,19 @@ Page({
       });
       return;
     }
-    const seq = (this.cronPreviewSeq || 0) + 1;
-    this.cronPreviewSeq = seq;
-    this.cronPreviewTimer = setTimeout(() => this.fetchCronPreview(value, seq), 300);
+    this.pendingCronPreview = value;
+    this.cronPreviewTimer = setTimeout(() => this.fetchCronPreview(value), 300);
   },
 
-  fetchCronPreview(cron, seq, options) {
+  fetchCronPreview(cron, options) {
+    const expectedCron = cron;
     this.setData({ previewingCron: true });
     request({
       path: "/api/reminders/cron/preview",
       method: "POST",
       data: { cron },
       success: (res) => {
-        if (seq !== this.cronPreviewSeq) {
+        if (expectedCron !== this.pendingCronPreview) {
           return;
         }
         const data = res && res.data && res.data.data ? res.data.data : {};
@@ -796,7 +792,7 @@ Page({
         });
       },
       fail: () => {
-        if (seq !== this.cronPreviewSeq) {
+        if (expectedCron !== this.pendingCronPreview) {
           return;
         }
         const preview = {
@@ -811,7 +807,7 @@ Page({
         });
       },
       complete: () => {
-        if (seq === this.cronPreviewSeq) {
+        if (expectedCron === this.pendingCronPreview) {
           this.setData({ previewingCron: false });
         }
       }
